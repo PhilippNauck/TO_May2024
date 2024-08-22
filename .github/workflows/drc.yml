@@ -48,14 +48,14 @@ jobs:
             -   name: drc
                 run: |
                     klayout -v;
-                    export KLAYOUT_HOME=${{ github.workspace }}/Open-PDK/${{ vars.KLAYOUT_HOME }} klayout;
+                    
                     result=true;
                     for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
                         FileRe="FMD_QNC.*\.gds"
                         if [[ $file =~ $FileRe ]]; then 
                             echo "Run DRC for $file";
                             path=${{ github.workspace }}/${file};
-                            OUTPUT=$(klayout -b -r ${{ github.workspace }}/Open-PDK/${{ vars.DRC }} -rd "in_gds"="${path}")
+                            OUTPUT=$(klayout -b -r ${{ github.workspace }}/drc/drc.lydrc -rd "in_gds"="${path}")
 
                             re="Number of DRC errors: [0-9]+"
                             if [[ $OUTPUT =~ $re ]]; then
