@@ -23,7 +23,7 @@ jobs:
     drc:
         runs-on: ubuntu-latest
         steps:
-            -   name: Install IHP_Open_DesignLib
+            -   name: Get all files
                 uses: actions/checkout@master
             -   name: Check all files
                 id: changed-files
@@ -39,12 +39,6 @@ jobs:
                     sudo apt install -f -y
                     # Check that KLayout was successfully installed!
                     klayout -v
-            -   name: Install IHP_Open_PDK
-                uses: actions/checkout@master
-                with:
-                    repository: IHP-GmbH/IHP-Open-PDK
-                    ref: dev
-                    path: Open-PDK
             -   name: drc
                 run: |
                     klayout -v;
