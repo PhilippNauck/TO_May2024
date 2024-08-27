@@ -42,6 +42,7 @@ jobs:
                 run: |
                     klayout -v;
                     mkdir ${{ github.workspace }}/drc/Results
+                    touch ${{ github.workspace }}/drc/Results/test.txt
                     result=true;
                     for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
                         FileRe="FMD_QNC.*\.gds"
