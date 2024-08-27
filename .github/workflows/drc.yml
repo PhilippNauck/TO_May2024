@@ -80,6 +80,7 @@ jobs:
                     fi
             -   name: Archive DRC Results
                 uses: actions/upload-artifact@v4
+                if: always()
                 with:
                     name: DRC-Results
                     path: ${{ github.workspace }}/drc/Results
