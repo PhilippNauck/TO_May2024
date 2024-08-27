@@ -31,7 +31,6 @@ jobs:
             -   name: Installing Klayout
                 run: |
                     sudo apt update -qq -y
-                    # wget https://www.klayout.org/downloads/Ubuntu-22/klayout_0.29.6-1_amd64.deb
                     # The dpkg command will fail complaining about missing dependencies.
                     sudo dpkg -i ./drc/klayout_0.29.6-1_amd64.deb || true
                     # The apt install command should install the missing dependencies
@@ -42,7 +41,7 @@ jobs:
             -   name: drc
                 run: |
                     klayout -v;
-                    
+                    mkdir ${{ github.workspace }}/drc/Results
                     result=true;
                     for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
                         FileRe="FMD_QNC.*\.gds"
@@ -77,3 +76,8 @@ jobs:
                     then 
                         exit 130 
                     fi
+            -   name: Archive production artifacts
+                uses: actions/upload-artifact@v4
+                with:
+                    name: dist-without-markdown
+                    path: ${{ github.workspace }}/drc/Results
