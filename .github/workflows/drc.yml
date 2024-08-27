@@ -50,7 +50,8 @@ jobs:
                             echo "Run DRC for $file";
                             path=${{ github.workspace }}/${file};
                             echo "${file//[\/.]/_}"
-                            OUTPUT=$(klayout -b -r ${{ github.workspace }}/drc/drc.lydrc -rd "in_gds"="${path}")
+                            resultpath = {{ github.workspace }}/drc/Results/${file//[\/.]/_}.lyrdb
+                            OUTPUT=$(klayout -b -r ${{ github.workspace }}/drc/drc.lydrc -rd "in_gds"="${path}" -rd "report_file"="${resultpath}")
 
                             re="Number of DRC errors: [0-9]+"
                             if [[ $OUTPUT =~ $re ]]; then
