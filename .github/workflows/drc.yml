@@ -24,7 +24,9 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             -   name: list runner dir
-                run: ls
+                run: |
+                    ls
+                    pwd
             -   name: Get all files
                 uses: actions/checkout@master
             -   name: Check all files
