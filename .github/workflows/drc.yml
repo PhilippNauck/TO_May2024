@@ -23,6 +23,8 @@ jobs:
     drc:
         runs-on: ubuntu-latest
         steps:
+            -   name: list runner dir
+                run: ls
             -   name: Get all files
                 uses: actions/checkout@master
             -   name: Check all files
@@ -42,15 +44,13 @@ jobs:
                 run: |
                     klayout -v;
                     mkdir ${{ github.workspace }}/drc/Results
-                    touch ${{ github.workspace }}/drc/Results/test.txt
                     result=true;
                     for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
                         FileRe="FMD_QNC.*\.gds"
                         if [[ $file =~ $FileRe ]]; then 
                             echo "Run DRC for $file";
                             path=${{ github.workspace }}/${file};
-                            echo "${file//[\/.]/_}"
-                            resultpath=${{ github.workspace }}/drc/Results/${file//[\/.]/_}.lyrdb
+                            resultpath=${{ github.workspace }}/drc/Results/${file//[\/.]/_}.lyrdb;
                             OUTPUT=$(klayout -b -r ${{ github.workspace }}/drc/drc.lydrc -rd "in_gds"="${path}" -rd "report_file"="${resultpath}")
 
                             re="Number of DRC errors: [0-9]+"
