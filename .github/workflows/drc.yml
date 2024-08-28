@@ -27,6 +27,9 @@ jobs:
                 run: |
                     ls
                     pwd
+                    cd ..
+                    pwd
+                    ls
             -   name: Get all files
                 uses: actions/checkout@master
             -   name: Check all files
