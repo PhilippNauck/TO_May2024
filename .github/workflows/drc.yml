@@ -17,19 +17,14 @@
 
 name: DRC
 
-on: push
+on: 
+    pull_request:
+        types: [opened, reopened]
 
 jobs:
     drc:
         runs-on: ubuntu-latest
         steps:
-            -   name: list runner dir
-                run: |
-                    ls
-                    pwd
-                    cd ..
-                    pwd
-                    ls
             -   name: Get all files
                 uses: actions/checkout@master
             -   name: Check all files
