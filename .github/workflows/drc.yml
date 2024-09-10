@@ -44,7 +44,6 @@ jobs:
             -   name: drc
                 run: |
                     klayout -v;
-                    apt-get install unzip
                     mkdir ${{ github.workspace }}/drc/Results
                     result=true;
                     for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
