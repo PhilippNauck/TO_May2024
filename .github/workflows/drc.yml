@@ -44,6 +44,7 @@ jobs:
             -   name: drc
                 run: |
                     klayout -v;
+                    apt-get install unzip
                     mkdir ${{ github.workspace }}/drc/Results
                     result=true;
                     for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
@@ -52,6 +53,10 @@ jobs:
                             FileRe="\.zip"
                             if [[ $file =~ $FileRe ]]; then 
                                 echo "zip";
+                                unzip ${{ github.workspace }}/${file}
+                                path=${{ github.workspace }}/${file//[\/.zip]/};
+                                echo ${path}
+                                ls ${path}
                             else
                                 echo "Run DRC for $file";
                                 path=${{ github.workspace }}/${file};
