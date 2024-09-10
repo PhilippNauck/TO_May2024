@@ -47,32 +47,37 @@ jobs:
                     mkdir ${{ github.workspace }}/drc/Results
                     result=true;
                     for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
-                        FileRe="FMD_QNC.*\.gds"
+                        FileRe="\.gds"
                         if [[ $file =~ $FileRe ]]; then 
-                            echo "Run DRC for $file";
-                            path=${{ github.workspace }}/${file};
-                            resultpath=${{ github.workspace }}/drc/Results/${file//[\/.]/_}.lyrdb;
-                            OUTPUT=$(klayout -b -r ${{ github.workspace }}/drc/drc.lydrc -rd "in_gds"="${path}" -rd "report_file"="${resultpath}")
+                            FileRe="\.zip"
+                            if [[ $file =~ $FileRe ]]; then 
+                                echo "zip";
+                            else
+                                echo "Run DRC for $file";
+                                path=${{ github.workspace }}/${file};
+                                resultpath=${{ github.workspace }}/drc/Results/${file//[\/.]/_}.lyrdb;
+                                OUTPUT=$(klayout -b -r ${{ github.workspace }}/drc/drc.lydrc -rd "in_gds"="${path}" -rd "report_file"="${resultpath}")
 
-                            re="Number of DRC errors: [0-9]+"
-                            if [[ $OUTPUT =~ $re ]]; then
-                                echo ${BASH_REMATCH};
-                                NumberRe="[0-9]+"
-                                if [[ $BASH_REMATCH =~ $NumberRe ]]; then 
-                                    if (($BASH_REMATCH == 0))
-                                    then 
-                                        echo "DRC pass";
-                                    else
+                                re="Number of DRC errors: [0-9]+"
+                                if [[ $OUTPUT =~ $re ]]; then
+                                    echo ${BASH_REMATCH};
+                                    NumberRe="[0-9]+"
+                                    if [[ $BASH_REMATCH =~ $NumberRe ]]; then 
+                                        if (($BASH_REMATCH == 0))
+                                        then 
+                                            echo "DRC pass";
+                                        else
+                                            echo "DRC fail";
+                                            result=false;
+                                        fi
+                                    else 
                                         echo "DRC fail";
                                         result=false;
                                     fi
-                                else 
+                                else
                                     echo "DRC fail";
                                     result=false;
                                 fi
-                            else
-                                echo "DRC fail";
-                                result=false;
                             fi
                         fi
                     done
