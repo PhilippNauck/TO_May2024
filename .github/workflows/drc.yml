@@ -80,12 +80,12 @@ jobs:
 
                                 # Ausgabe der Dateien im Array
                                 echo "Gefundene Dateien:"
-                                for file in "${file_array[@]}"; do
-                                    echo "$file"
+                                for ZipContentFile in "${file_array[@]}"; do
+                                    echo "$ZipContentFile"
 
                                     echo "Run DRC for $file";
-                                    path=$file;
-                                    resultpath=${{ github.workspace }}/drc/Results/${file//[\/.]/_}.lyrdb;
+                                    path=$ZipContentFile;
+                                    resultpath=${{ github.workspace }}/drc/Results/${ZipContentFile//[\/.]/_}.lyrdb;
                                     OUTPUT=$(klayout -b -r ${{ github.workspace }}/drc/drc.lydrc -rd "in_gds"="${path}" -rd "report_file"="${resultpath}")
 
                                     re="Number of DRC errors: [0-9]+"
