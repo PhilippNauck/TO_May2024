@@ -90,7 +90,6 @@ jobs:
 
                                     re="Number of DRC errors: [0-9]+"
                                     if [[ $OUTPUT =~ $re ]]; then
-                                        echo ${BASH_REMATCH};
                                         NumberRe="[0-9]+"
                                         if [[ $BASH_REMATCH =~ $NumberRe ]]; then 
                                             if (($BASH_REMATCH == 0))
@@ -123,7 +122,6 @@ jobs:
 
                                 re="Number of DRC errors: [0-9]+"
                                 if [[ $OUTPUT =~ $re ]]; then
-                                    echo ${BASH_REMATCH};
                                     NumberRe="[0-9]+"
                                     if [[ $BASH_REMATCH =~ $NumberRe ]]; then 
                                         if (($BASH_REMATCH == 0))
