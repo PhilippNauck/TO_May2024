@@ -81,7 +81,6 @@ jobs:
                                 # Ausgabe der Dateien im Array
                                 echo "Gefundene Dateien:"
                                 for file in "${file_array[@]}"; do
-                                    #Add Klayout
                                     echo "$file"
 
                                     echo "Run DRC for $file";
@@ -96,7 +95,7 @@ jobs:
                                         if [[ $BASH_REMATCH =~ $NumberRe ]]; then 
                                             if (($BASH_REMATCH == 0))
                                             then 
-                                                #echo "DRC pass";
+                                                echo "DRC pass";
                                             else
                                                 echo "DRC fail";
                                                 result=false;
