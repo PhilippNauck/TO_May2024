@@ -112,7 +112,7 @@ jobs:
                                 Zips=$((Zips + 1))
                             elif [[ $file =~ $GDSRe ]]; then
                                 echo "Run DRC for $file";
-                                path=${{ github.workspace }}/${0};
+                                path=${{ github.workspace }}/${file};
                                 resultpath=${{ github.workspace }}/drc/Results/${file//[\/.]/_}.lyrdb;
 
                                 command_output=$(mktemp)
