@@ -81,7 +81,7 @@ jobs:
                                 # Ausgabe der Dateien im Array
                                 echo "Gefundene Dateien:"
                                 for file in "${file_array[@]}"; do
-                                    Add Klayout
+                                    #Add Klayout
                                     echo "$file"
                                 done
 
