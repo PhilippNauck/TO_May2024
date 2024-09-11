@@ -74,29 +74,18 @@ jobs:
                                 7z x "$ZIP_FILE" -o"$EXTRACT_DIR"
 
                                 # Dateiformat, nach dem gesucht wird (z.B. '.txt' für Textdateien)
-                                #file_extension=gds
+                                file_extension=gds
 
-                                # Überprüfen, ob beide Argumente übergeben wurden
-                                #if [ -z "$EXTRACT_DIR" ] || [ -z "$file_extension" ]; then
-                                #echo "Verwendung: $0 <Verzeichnis> <Dateierweiterung>"
-                                #exit 1
-                                #fi
-
-                                #file_array=($(find "$EXTRACT_DIR" -type f -iname "*$file_extension"))
+                                file_array=($(find "$EXTRACT_DIR" -type f -iname "*$file_extension"))
 
                                 # Ausgabe der Dateien im Array
-                                #echo "Gefundene Dateien:"
-                                #for file in "${file_array[@]}"; do
-                                    #Add Klayout
-                                #echo "$file"
-                                #done
+                                echo "Gefundene Dateien:"
+                                for file in "${file_array[@]}"; do
+                                    Add Klayout
+                                    echo "$file"
+                                done
 
-                                #Zips=$((Zips + 1))
-
-
-
-
-
+                                Zips=$((Zips + 1))
                             else
                                 echo "Run DRC for $file";
                                 path=${{ github.workspace }}/${file};
