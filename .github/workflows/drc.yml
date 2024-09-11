@@ -46,16 +46,54 @@ jobs:
                     klayout -v;
                     mkdir ${{ github.workspace }}/drc/Results
                     result=true;
+                    Zips=0
                     for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
                         FileRe="\.gds"
                         if [[ $file =~ $FileRe ]]; then 
-                            FileRe="\.zip"
-                            if [[ $file =~ $FileRe ]]; then 
+                            ZipRe="\.zip"
+                            if [[ $file =~ $ZipRe ]]; then 
                                 echo "zip";
-                                unzip ${{ github.workspace }}/${file}
-                                path=${{ github.workspace }}/${file//[\/.zip]/};
-                                echo ${path}
-                                ls ${path}
+
+                                ZIP_FILE="${{ github.workspace }}/${file}"
+                                # Zielverzeichnis für das Entpacken
+                                EXTRACT_DIR="Folder$Zips"
+                                echo "$ZIP_FILE"
+                                echo "$EXTRACT_DIR"
+
+
+                                # Überprüfen, ob die ZIP-Datei existiert
+                                #if [[ ! -f "$ZIP_FILE" ]]; then
+                                #echo "ZIP-Datei nicht gefunden: $ZIP_FILE"
+                                #exit 1
+                                #fi
+
+
+                                #7z x "$ZIP_FILE" -o"$EXTRACT_DIR"
+
+                                # Dateiformat, nach dem gesucht wird (z.B. '.txt' für Textdateien)
+                                #file_extension=gds
+
+                                # Überprüfen, ob beide Argumente übergeben wurden
+                                #if [ -z "$EXTRACT_DIR" ] || [ -z "$file_extension" ]; then
+                                #echo "Verwendung: $0 <Verzeichnis> <Dateierweiterung>"
+                                #exit 1
+                                #fi
+
+                                #file_array=($(find "$EXTRACT_DIR" -type f -iname "*$file_extension"))
+
+                                # Ausgabe der Dateien im Array
+                                #echo "Gefundene Dateien:"
+                                #for file in "${file_array[@]}"; do
+                                    #Add Klayout
+                                #echo "$file"
+                                #done
+
+                                #Zips=$((Zips + 1))
+
+
+
+
+
                             else
                                 echo "Run DRC for $file";
                                 path=${{ github.workspace }}/${file};
