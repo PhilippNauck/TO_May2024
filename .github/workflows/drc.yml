@@ -56,7 +56,7 @@ jobs:
 
                                 ZIP_FILE="${{ github.workspace }}/${file}"
                                 # Zielverzeichnis für das Entpacken
-                                EXTRACT_DIR="Folder$Zips"
+                                EXTRACT_DIR="${ZIP_FILE%/*}Folder$Zips"
                                 echo "$ZIP_FILE"
                                 echo "$EXTRACT_DIR"
 
