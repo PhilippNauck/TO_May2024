@@ -54,6 +54,7 @@ jobs:
                         FileRe="\.gds"
                         if [[ $file =~ $FileRe ]]; then 
                             ZipRe="\.zip"
+                            GDSRe="\.gds$"
                             if [[ $file =~ $ZipRe ]]; then 
                                 echo "zip";
 
@@ -116,7 +117,7 @@ jobs:
                                 done
 
                                 Zips=$((Zips + 1))
-                            else
+                            elseif [[ $file =~ $GDSRe ]]; then
                                 echo "Run DRC for $file";
                                 path=${{ github.workspace }}/${0};
                                 resultpath=${{ github.workspace }}/drc/Results/${file//[\/.]/_}.lyrdb;
