@@ -83,12 +83,43 @@ jobs:
                                 for file in "${file_array[@]}"; do
                                     #Add Klayout
                                     echo "$file"
+
+                                    echo "Run DRC for $file";
+                                    path=$file;
+                                    resultpath=${{ github.workspace }}/drc/Results/${file//[\/.]/_}.lyrdb;
+                                    OUTPUT=$(klayout -b -r ${{ github.workspace }}/drc/drc.lydrc -rd "in_gds"="${path}" -rd "report_file"="${resultpath}")
+
+                                    re="Number of DRC errors: [0-9]+"
+                                    if [[ $OUTPUT =~ $re ]]; then
+                                        echo ${BASH_REMATCH};
+                                        NumberRe="[0-9]+"
+                                        if [[ $BASH_REMATCH =~ $NumberRe ]]; then 
+                                            if (($BASH_REMATCH == 0))
+                                            then 
+                                                #echo "DRC pass";
+                                            else
+                                                echo "DRC fail";
+                                                result=false;
+                                            fi
+                                        else 
+                                            echo "DRC fail";
+                                            result=false;
+                                        fi
+                                    else
+                                        echo "DRC fail";
+                                        result=false;
+                                    fi
+
+
+
+
+
                                 done
 
                                 Zips=$((Zips + 1))
                             else
                                 echo "Run DRC for $file";
-                                path=${{ github.workspace }}/${file};
+                                path=${{ github.workspace }}/${0};
                                 resultpath=${{ github.workspace }}/drc/Results/${file//[\/.]/_}.lyrdb;
                                 OUTPUT=$(klayout -b -r ${{ github.workspace }}/drc/drc.lydrc -rd "in_gds"="${path}" -rd "report_file"="${resultpath}")
 
