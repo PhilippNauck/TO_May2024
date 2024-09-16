@@ -34,10 +34,7 @@ jobs:
         steps:
             -   name: Get all files
                 uses: actions/checkout@master
-            -   name: Check all files
-                id: changed-files
-                uses: tj-actions/changed-files@v44
-            -   name: Step 1 - Get changed files for pull request
+            -   name: Get changed files
                 if: github.event_name == 'pull_request'
                 id: get-changed-files
                 run: |
@@ -49,7 +46,7 @@ jobs:
                 shell: bash
         
                 # Schritt 2: Manuelle Dateiliste eingeben
-            -   name: Step 2 - Use manually input files
+            -   name: Use manually input
                 if: github.event_name == 'workflow_dispatch'
                 id: manual-files
                 run: |
@@ -61,10 +58,11 @@ jobs:
                 shell: bash
         
                 # Schritt 3: Ausgabe der erstellten Dateienliste
-            -   name: Step 3 - Output the file list
+            -   name: Output the file list
                 id: fileList
                 run: |
-                  # Hole die Ausgabedateien aus Schritt 1 oder 2
+                  echo "${{ steps.get-changed-files.outputs.files || steps.manual-files.outputs.files }}"
+                  
                   echo "::set-output name=files::${{ steps.get-changed-files.outputs.files || steps.manual-files.outputs.files }}"
             -   name: Installing p7zip
                 run: |
@@ -89,6 +87,7 @@ jobs:
                     result=true;
                     Zips=0
                     for file in ${{ steps.fileList.outputs.files }}; do
+                        echo $file;
                         FileRe="\.gds"
                         if [[ $file =~ $FileRe ]]; then 
                             ZipRe="\.zip"
