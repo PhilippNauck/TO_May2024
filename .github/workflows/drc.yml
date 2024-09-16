@@ -22,6 +22,11 @@ on:
     pull_request:
         types: [opened, reopened]
     workflow_dispatch:
+        inputs:
+            files:
+                description: 'Enter a comma-separated list of files'
+                required: true
+                default: 'file1.txt,file2.txt'
 
 jobs:
     drc:
@@ -32,16 +37,40 @@ jobs:
             -   name: Check all files
                 id: changed-files
                 uses: tj-actions/changed-files@v44
-            -   name: Step 2 - Only runs when triggered manually
-                if: github.event_name == 'workflow_dispatch'
+            -   name: Step 1 - Get changed files for pull request
+                if: github.event_name == 'pull_request'
+                id: get-changed-files
                 run: |
-                    my_array=${{ steps.changed-files.outputs.all_changed_files }}
-
-                    # Fügt ein Element zum Array hinzu
-                    my_array=$(echo $my_array | jq '. + ["new_element"]')
-
-                    # Ausgabe des aktualisierten Arrays
-                    echo "Updated Array: $my_array"
+                  # Verwende git diff, um die geänderten Dateien zu erhalten
+                  changed_files=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }})
+                  
+                  # Konvertiere die Dateienliste in ein JSON-Array
+                  files_json=$(jq -R -s -c 'split("\n")[:-1]' <<< "$changed_files")
+                  
+                  # Setze die Dateien als Ausgabe
+                  echo "::set-output name=files::$files_json"
+                shell: bash
+        
+                # Schritt 2: Manuelle Dateiliste eingeben
+            -   name: Step 2 - Use manually input files
+                if: github.event_name == 'workflow_dispatch'
+                id: manual-files
+                run: |
+                  # Nutze Eingabeparameter, um Dateien manuell anzugeben
+                  files_input="${{ github.event.inputs.files }}"
+                  
+                  # Konvertiere die Eingabe in ein JSON-Array (angenommen, die Eingabe ist durch Kommas getrennt)
+                  files_json=$(jq -R -s -c 'split(",")' <<< "$files_input")
+                  
+                  # Setze die Dateien als Ausgabe
+                  echo "::set-output name=files::$files_json"
+                shell: bash
+        
+                # Schritt 3: Ausgabe der erstellten Dateienliste
+            -   name: Step 3 - Output the file list
+                run: |
+                  # Hole die Ausgabedateien aus Schritt 1 oder 2
+                  echo "Files to process: ${{ steps.get-changed-files.outputs.files || steps.manual-files.outputs.files }}"
             -   name: Installing p7zip
                 run: |
                     sudo apt-get install p7zip-full 
