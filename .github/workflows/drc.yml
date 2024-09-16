@@ -26,13 +26,15 @@ on:
 jobs:
     drc:
         runs-on: ubuntu-latest
-        if: github.event.pull_request.opened == true
         steps:
             -   name: Get all files
                 uses: actions/checkout@master
             -   name: Check all files
                 id: changed-files
                 uses: tj-actions/changed-files@v44
+            -   name: Step 2 - Only runs when triggered manually
+                if: github.event_name == 'workflow_dispatch'
+                run: echo ${{ steps.changed-files.outputs.all_changed_files }}
             -   name: Installing p7zip
                 run: |
                     sudo apt-get install p7zip-full 
