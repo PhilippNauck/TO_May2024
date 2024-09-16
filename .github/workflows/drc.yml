@@ -40,7 +40,7 @@ jobs:
                 run: |
                   changed_files=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }})
                   
-                  files_json=$(jq -R -s -c 'split("\n")[:-1]' <<< "$changed_files")
+                  files_json=$(echo "$changed_files" | jq -R -s -c 'split("\n") | map(select(length > 0))')
                   echo $files_json
                   echo "::set-output name=files::$files_json"
                 shell: bash
@@ -52,7 +52,7 @@ jobs:
                 run: |
                   files_input="${{ github.event.inputs.files }}"
                   
-                  files_json=$(jq -R -s -c 'split(",")' <<< "$files_input")
+                  files_json=$(echo "$files_input" | jq -R -s -c 'split(",") | map(select(length > 0))')
                   echo $files_json
                   echo "::set-output name=files::$files_json"
                 shell: bash
