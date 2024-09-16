@@ -26,6 +26,7 @@ on:
 jobs:
     drc:
         runs-on: ubuntu-latest
+        if: github.event.pull_request.opened == true
         steps:
             -   name: Get all files
                 uses: actions/checkout@master
