@@ -82,10 +82,16 @@ jobs:
                     mkdir ${{ github.workspace }}/drc/Results
                     result=true;
                     Zips=0
+
+                    echo "$files" | jq -r '.[]' | while read file; do
+                        echo "Processing file: $file"
+                        # Hier kannst du Aktionen für jede Datei durchführen
+                    done
+
                     #echo $files | jq
                     #echo $files | jq -r '.[]'
                     #for file in $(echo $files | jq -r '.[]'); do
-                    for file in $files do
+                    for file in $files; do
                         echo "Processing file: $file"
                         FileRe="\.gds"
                         if [[ $file =~ $FileRe ]]; then 
