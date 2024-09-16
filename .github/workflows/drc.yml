@@ -73,6 +73,7 @@ jobs:
                     klayout -v
             -   name: drc
                 run: |
+                    jq --version;
                     klayout -v;
                     echo "Files:"
                     #echo ${{ steps.changed-files.outputs.all_changed_files }}
@@ -81,7 +82,8 @@ jobs:
                     mkdir ${{ github.workspace }}/drc/Results
                     result=true;
                     Zips=0
-                    echo $files | jq -r '.[]'
+                    echo $files | jq
+                    #echo $files | jq -r '.[]'
                     for file in $(echo $files | jq -r '.[]'); do
                         echo "Processing file: $file"
                         FileRe="\.gds"
