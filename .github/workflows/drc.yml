@@ -34,7 +34,14 @@ jobs:
                 uses: tj-actions/changed-files@v44
             -   name: Step 2 - Only runs when triggered manually
                 if: github.event_name == 'workflow_dispatch'
-                run: echo ${{ steps.changed-files.outputs.all_changed_files }}
+                run: |
+                    my_array=${{ steps.changed-files.outputs.all_changed_files }}
+
+                    # Fügt ein Element zum Array hinzu
+                    my_array=$(echo $my_array | jq '. + ["new_element"]')
+
+                    # Ausgabe des aktualisierten Arrays
+                    echo "Updated Array: $my_array"
             -   name: Installing p7zip
                 run: |
                     sudo apt-get install p7zip-full 
@@ -51,6 +58,8 @@ jobs:
             -   name: drc
                 run: |
                     klayout -v;
+                    echo "Files:"
+                    echo ${{ steps.changed-files.outputs.all_changed_files }}
                     mkdir ${{ github.workspace }}/drc/Results
                     result=true;
                     Zips=0
