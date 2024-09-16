@@ -83,7 +83,7 @@ jobs:
                     result=true;
                     Zips=0
 
-                    local type_signature=$(declare -p "$files" 2>/dev/null)
+                    type_signature=$(declare -p "$files" 2>/dev/null)
 
                     if [[ "$type_signature" =~ "declare --" ]]; then
                         printf "string"
