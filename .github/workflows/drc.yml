@@ -41,7 +41,7 @@ jobs:
                   changed_files=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }})
                   
                   files_json=$(jq -R -s -c 'split("\n")[:-1]' <<< "$changed_files")
-                  
+                  echo $files_json
                   echo "::set-output name=files::$files_json"
                 shell: bash
         
@@ -53,7 +53,7 @@ jobs:
                   files_input="${{ github.event.inputs.files }}"
                   
                   files_json=$(jq -R -s -c 'split(",")' <<< "$files_input")
-                  
+                  echo $files_json
                   echo "::set-output name=files::$files_json"
                 shell: bash
         
@@ -81,6 +81,7 @@ jobs:
                     mkdir ${{ github.workspace }}/drc/Results
                     result=true;
                     Zips=0
+                    echo $files | jq -r '.[]'
                     for file in $(echo $files | jq -r '.[]'); do
                         echo "Processing file: $file"
                         FileRe="\.gds"
