@@ -58,12 +58,6 @@ jobs:
                 shell: bash
         
                 # Schritt 3: Ausgabe der erstellten Dateienliste
-            -   name: Output the file list
-                id: fileList
-                run: |
-                  echo "${{ steps.get-changed-files.outputs.files || steps.manual-files.outputs.files }}"
-                  
-                  echo "::set-output name=files::${{ steps.get-changed-files.outputs.files || steps.manual-files.outputs.files }}"
             -   name: Installing p7zip
                 run: |
                     sudo apt-get install p7zip-full 
@@ -82,12 +76,13 @@ jobs:
                     klayout -v;
                     echo "Files:"
                     #echo ${{ steps.changed-files.outputs.all_changed_files }}
-                    echo ${{ steps.fileList.outputs.files }}
+                    files=${{ steps.get-changed-files.outputs.files || steps.manual-files.outputs.files }}
+                    echo $files
                     mkdir ${{ github.workspace }}/drc/Results
                     result=true;
                     Zips=0
-                    for file in ${{ steps.fileList.outputs.files }}; do
-                        echo $file;
+                    for file in $(echo $files | jq -r '.[]'); do
+                        echo "Processing file: $file"
                         FileRe="\.gds"
                         if [[ $file =~ $FileRe ]]; then 
                             ZipRe="\.zip"
