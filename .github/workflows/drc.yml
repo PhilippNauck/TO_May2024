@@ -41,13 +41,10 @@ jobs:
                 if: github.event_name == 'pull_request'
                 id: get-changed-files
                 run: |
-                  # Verwende git diff, um die geänderten Dateien zu erhalten
                   changed_files=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }})
                   
-                  # Konvertiere die Dateienliste in ein JSON-Array
                   files_json=$(jq -R -s -c 'split("\n")[:-1]' <<< "$changed_files")
                   
-                  # Setze die Dateien als Ausgabe
                   echo "::set-output name=files::$files_json"
                 shell: bash
         
@@ -56,21 +53,19 @@ jobs:
                 if: github.event_name == 'workflow_dispatch'
                 id: manual-files
                 run: |
-                  # Nutze Eingabeparameter, um Dateien manuell anzugeben
                   files_input="${{ github.event.inputs.files }}"
                   
-                  # Konvertiere die Eingabe in ein JSON-Array (angenommen, die Eingabe ist durch Kommas getrennt)
                   files_json=$(jq -R -s -c 'split(",")' <<< "$files_input")
                   
-                  # Setze die Dateien als Ausgabe
                   echo "::set-output name=files::$files_json"
                 shell: bash
         
                 # Schritt 3: Ausgabe der erstellten Dateienliste
             -   name: Step 3 - Output the file list
+                id: fileList
                 run: |
                   # Hole die Ausgabedateien aus Schritt 1 oder 2
-                  echo "Files to process: ${{ steps.get-changed-files.outputs.files || steps.manual-files.outputs.files }}"
+                  echo "::set-output name=files::${{ steps.get-changed-files.outputs.files || steps.manual-files.outputs.files }}"
             -   name: Installing p7zip
                 run: |
                     sudo apt-get install p7zip-full 
@@ -88,11 +83,12 @@ jobs:
                 run: |
                     klayout -v;
                     echo "Files:"
-                    echo ${{ steps.changed-files.outputs.all_changed_files }}
+                    #echo ${{ steps.changed-files.outputs.all_changed_files }}
+                    echo ${{ steps.fileList.outputs.files }}
                     mkdir ${{ github.workspace }}/drc/Results
                     result=true;
                     Zips=0
-                    for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
+                    for file in ${{ steps.fileList.outputs.files }}; do
                         FileRe="\.gds"
                         if [[ $file =~ $FileRe ]]; then 
                             ZipRe="\.zip"
