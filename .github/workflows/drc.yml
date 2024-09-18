@@ -73,7 +73,6 @@ jobs:
                     klayout -v
             -   name: drc
                 run: |
-                    jq --version;
                     klayout -v;
                     echo "Files:"
                     #echo ${{ steps.changed-files.outputs.all_changed_files }}
@@ -83,21 +82,41 @@ jobs:
                     result=true;
                     Zips=0
 
-                    type_signature=$(declare -p "$files" 2>/dev/null)
 
-                    if [[ "$type_signature" =~ "declare --" ]]; then
-                        echo "string"
-                    elif [[ "$type_signature" =~ "declare -a" ]]; then
-                        echo "array"
-                    elif [[ "$type_signature" =~ "declare -A" ]]; then
-                        echo "map"
-                    else
-                        echo "none"
-                    fi
 
-                    #echo $files | jq
-                    #echo $files | jq -r '.[]'
-                    #for file in $(echo $files | jq -r '.[]'); do
+
+                    # Funktion mit String-Input
+                    function listToArray() {
+                        local input_string="$1"
+                        
+                        # 1. Entferne die Klammern und die Anführungszeichen
+                        cleaned_input=$(echo "$input_string" | sed 's/\[//g' | sed 's/\]//g' | sed 's/"//g')
+
+                        # 2. Entferne die Kommata und setze Leerzeichen stattdessen
+                        cleaned_input=$(echo "$cleaned_input" | sed 's/,/ /g')
+                        
+                        # 2. Entferne die Kommata und setze Leerzeichen stattdessen
+                        cleaned_input=$(echo "$cleaned_input" | sed 's/\\n/ /g')
+
+                        # 3. Optional: Entferne Leerzeichen am Anfang und Ende, sowie den "\n"
+                        cleaned_input=$(echo "$cleaned_input" | tr -d '\n')
+
+                        # 4. Erstelle ein Array aus dem bereinigten String
+                        clean_array=($cleaned_input)
+                        
+                        # Gib das Array zurück
+                        echo "${clean_array[@]}"
+                    }
+
+                    # Funktion aufrufen und Rückgabe in ein Array speichern
+                    result_array=($(listToArray "$files"))
+
+                    echo "Array-Inhalte:"
+                    for file in "${result_array[@]}"; do
+                        echo "$file"
+                    done
+
+                    
                     for file in $files; do
                         echo "Processing file: $file"
                         FileRe="\.gds"
@@ -195,6 +214,7 @@ jobs:
                     then 
                         exit 130 
                     fi
+                shell: bash
             -   name: Archive DRC Results
                 uses: actions/upload-artifact@v4
                 if: always()
