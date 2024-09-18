@@ -109,15 +109,10 @@ jobs:
                     }
 
                     # Funktion aufrufen und Rückgabe in ein Array speichern
-                    result_array=($(listToArray "$files"))
+                    file_array=($(listToArray "$files"))
 
                     echo "Array-Inhalte:"
-                    for file in "${result_array[@]}"; do
-                        echo "$file"
-                    done
-
-                    
-                    for file in $files; do
+                    for file in "${file_array[@]}"; do
                         echo "Processing file: $file"
                         FileRe="\.gds"
                         if [[ $file =~ $FileRe ]]; then 
