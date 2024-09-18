@@ -74,44 +74,59 @@ jobs:
             -   name: drc
                 run: |
                     klayout -v;
-                    echo "Files:"
-                    #echo ${{ steps.changed-files.outputs.all_changed_files }}
                     files=${{ steps.get-changed-files.outputs.files || steps.manual-files.outputs.files }}
-                    echo $files
                     mkdir ${{ github.workspace }}/drc/Results
                     result=true;
                     Zips=0
 
-
-
-
-                    # Funktion mit String-Input
+                    # Function to convert a Gitlab action list into an array
                     function listToArray() {
                         local input_string="$1"
-                        
-                        # 1. Entferne die Klammern und die Anführungszeichen
+
+                        # 1. Remove the brackets and quotation marks
                         cleaned_input=$(echo "$input_string" | sed 's/\[//g' | sed 's/\]//g' | sed 's/"//g')
 
-                        # 2. Entferne die Kommata und setze Leerzeichen stattdessen
+                        # 2. Remove the commas and put spaces instead
                         cleaned_input=$(echo "$cleaned_input" | sed 's/,/ /g')
-                        
-                        # 2. Entferne die Kommata und setze Leerzeichen stattdessen
+
+                        # 3. Remove the \n and put spaces instead
                         cleaned_input=$(echo "$cleaned_input" | sed 's/\\n/ /g')
 
                         # 3. Optional: Entferne Leerzeichen am Anfang und Ende, sowie den "\n"
-                        cleaned_input=$(echo "$cleaned_input" | tr -d '\n')
+                        # cleaned_input=$(echo "$cleaned_input" | tr -d '\n')
 
-                        # 4. Erstelle ein Array aus dem bereinigten String
                         clean_array=($cleaned_input)
-                        
-                        # Gib das Array zurück
                         echo "${clean_array[@]}"
                     }
 
-                    # Funktion aufrufen und Rückgabe in ein Array speichern
-                    file_array=($(listToArray "$files"))
+                    function RunDRC() {
+                        command_output=$(mktemp)
+                        klayout -b -r ${{ github.workspace }}/drc/drc.lydrc -rd "in_gds"="$1" -rd "report_file"="$2" | tee "$command_output"
 
-                    echo "Array-Inhalte:"
+                        OUTPUT=$(cat "$command_output")
+
+                        re="Number of DRC errors: [0-9]+"
+                        if [[ $OUTPUT =~ $re ]]; then
+                            NumberRe="[0-9]+"
+                            if [[ $BASH_REMATCH =~ $NumberRe ]]; then 
+                                if (($BASH_REMATCH == 0))
+                                then 
+                                    echo "DRC pass";
+                                else
+                                    echo "DRC fail";
+                                    result=false;
+                                fi
+                            else 
+                                echo "DRC fail";
+                                result=false;
+                            fi
+                        else
+                            echo "DRC fail";
+                            result=false;
+                        fi
+                    }
+
+                    file_array=($(listToArray "$files"))
                     for file in "${file_array[@]}"; do
                         echo "Processing file: $file"
                         FileRe="\.gds"
@@ -119,11 +134,12 @@ jobs:
                             ZipRe="\.zip"
                             GDSRe="\.gds$"
                             if [[ $file =~ $ZipRe ]]; then 
+                            
                                 ZIP_FILE="${{ github.workspace }}/${file}"
-                                # Zielverzeichnis für das Entpacken
+                                # Target directory for unpacking
                                 EXTRACT_DIR="${ZIP_FILE%/*}/Folder$Zips"
 
-                                # Überprüfen, ob die ZIP-Datei existiert
+                                # Check whether the ZIP file exists
                                 if [[ ! -f "$ZIP_FILE" ]]; then
                                     echo "ZIP-Datei nicht gefunden: $ZIP_FILE"
                                     exit 1
@@ -131,77 +147,26 @@ jobs:
 
                                 7z x "$ZIP_FILE" -o"$EXTRACT_DIR"
 
-                                # Dateiformat, nach dem gesucht wird (z.B. '.txt' für Textdateien)
                                 file_extension=gds
 
                                 file_array=($(find "$EXTRACT_DIR" -type f -iname "*$file_extension"))
 
-                                # Ausgabe der Dateien im Array
-                                echo "Gefundene Dateien:"
+                                echo "Files found:"
                                 for ZipContentFile in "${file_array[@]}"; do
                                     echo "$ZipContentFile"
 
                                     echo "Run DRC for $ZipContentFile";
                                     path=$ZipContentFile;
                                     resultpath=${{ github.workspace }}/drc/Results/${ZipContentFile//[\/.]/_}.lyrdb;
-                                    # OUTPUT=$(klayout -b -r ${{ github.workspace }}/drc/drc.lydrc -rd "in_gds"="${path}" -rd "report_file"="${resultpath}")
-
-                                    command_output=$(mktemp)
-                                    klayout -b -r ${{ github.workspace }}/drc/drc.lydrc -rd "in_gds"="${path}" -rd "report_file"="${resultpath}" | tee "$command_output"
-
-                                    OUTPUT=$(cat "$command_output")
-
-                                    re="Number of DRC errors: [0-9]+"
-                                    if [[ $OUTPUT =~ $re ]]; then
-                                        NumberRe="[0-9]+"
-                                        if [[ $BASH_REMATCH =~ $NumberRe ]]; then 
-                                            if (($BASH_REMATCH == 0))
-                                            then 
-                                                echo "DRC pass";
-                                            else
-                                                echo "DRC fail";
-                                                result=false;
-                                            fi
-                                        else 
-                                            echo "DRC fail";
-                                            result=false;
-                                        fi
-                                    else
-                                        echo "DRC fail";
-                                        result=false;
-                                    fi
+                                    
+                                    RunDRC ${path} ${resultpath}
                                 done
                                 Zips=$((Zips + 1))
                             elif [[ $file =~ $GDSRe ]]; then
                                 echo "Run DRC for $file";
                                 path=${{ github.workspace }}/${file};
                                 resultpath=${{ github.workspace }}/drc/Results/${file//[\/.]/_}.lyrdb;
-
-                                command_output=$(mktemp)
-
-                                klayout -b -r ${{ github.workspace }}/drc/drc.lydrc -rd "in_gds"="${path}" -rd "report_file"="${resultpath}" | tee "$command_output"
-
-                                OUTPUT=$(cat "$command_output")
-
-                                re="Number of DRC errors: [0-9]+"
-                                if [[ $OUTPUT =~ $re ]]; then
-                                    NumberRe="[0-9]+"
-                                    if [[ $BASH_REMATCH =~ $NumberRe ]]; then 
-                                        if (($BASH_REMATCH == 0))
-                                        then 
-                                            echo "DRC pass";
-                                        else
-                                            echo "DRC fail";
-                                            result=false;
-                                        fi
-                                    else 
-                                        echo "DRC fail";
-                                        result=false;
-                                    fi
-                                else
-                                    echo "DRC fail";
-                                    result=false;
-                                fi
+                            RunDRC ${path} ${resultpath}
                             fi
                         fi
                     done
