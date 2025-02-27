@@ -1,0 +1,9 @@
+{
+    "IHP": {
+        "gds": {
+            "final_path":"design_data/klayout/gds/LDO.gds",
+            "compression":"none",
+            "topcell": "LDO"
+        }
+    }
+}
