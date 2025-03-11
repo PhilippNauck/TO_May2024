@@ -1,0 +1,9 @@
+{
+    "IHP": {
+        "gds": {
+            "final_path":"design_data/gds/UHEE628_S2024_FILL.gds",
+            "compression":"none",
+            "topcell": "LDO"
+        }
+    }
+}
